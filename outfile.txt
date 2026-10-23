@@ -1,0 +1,54 @@
+  poisonous cap-shape cap-surface  ... spore-print-color population habitat
+0         e         x           s  ...                 n          n       g
+1         e         b           s  ...                 n          n       m
+2         p         x           y  ...                 k          s       u
+3         e         x           s  ...                 n          a       g
+4         e         x           y  ...                 k          n       g
+
+[5 rows x 23 columns]
+       poisonous cap-shape  ... population habitat
+count       8123      8123  ...       8123    8123
+unique         2         6  ...          6       7
+top            e         x  ...          v       d
+freq        4208      3655  ...       4040    3148
+
+[4 rows x 23 columns]
+<class 'pandas.DataFrame'>
+RangeIndex: 8123 entries, 0 to 8122
+Data columns (total 23 columns):
+ #   Column                    Non-Null Count  Dtype
+---  ------                    --------------  -----
+ 0   poisonous                 8123 non-null   str  
+ 1   cap-shape                 8123 non-null   str  
+ 2   cap-surface               8123 non-null   str  
+ 3   cap-color                 8123 non-null   str  
+ 4   bruises                   8123 non-null   str  
+ 5   odor                      8123 non-null   str  
+ 6   gill-attachment           8123 non-null   str  
+ 7   gill-spacing              8123 non-null   str  
+ 8   gill-size                 8123 non-null   str  
+ 9   gill-color                8123 non-null   str  
+ 10  stalk-shape               8123 non-null   str  
+ 11  stalk-root                8123 non-null   str  
+ 12  stalk-surface-above-ring  8123 non-null   str  
+ 13  stalk-surface-below-ring  8123 non-null   str  
+ 14  stalk-color-above-ring    8123 non-null   str  
+ 15  stalk-color-below-ring    8123 non-null   str  
+ 16  veil-type                 8123 non-null   str  
+ 17  veil-color                8123 non-null   str  
+ 18  ring-number               8123 non-null   str  
+ 19  ring-type                 8123 non-null   str  
+ 20  spore-print-color         8123 non-null   str  
+ 21  population                8123 non-null   str  
+ 22  habitat                   8123 non-null   str  
+dtypes: str(23)
+memory usage: 1.4 MB
+None
+Index(['poisonous', 'cap-shape', 'cap-surface', 'cap-color', 'bruises', 'odor',
+       'gill-attachment', 'gill-spacing', 'gill-size', 'gill-color',
+       'stalk-shape', 'stalk-root', 'stalk-surface-above-ring',
+       'stalk-surface-below-ring', 'stalk-color-above-ring',
+       'stalk-color-below-ring', 'veil-type', 'veil-color', 'ring-number',
+       'ring-type', 'spore-print-color', 'population', 'habitat'],
+      dtype='str')
+(8123, 23)
