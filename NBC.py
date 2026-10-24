@@ -11,6 +11,19 @@ with open('mushroom/Editedagaricus-lepiota.data') as file: #https://archive.ics.
     print(df.shape)
 
 class NaiveBayesClassifier:
-    def __init__(self):
-        self.class_probs = {}
-        self.feature_probs = {}
+    def fit(self, X, y):
+
+
+
+    def compute_likelihood(self, X):
+        likelihood = 1;
+
+        return likelihood
+
+
+    
+    def predict(self, X):
+        predictions = []
+        
+
+
