@@ -146,21 +146,43 @@ def evaluate(y_true, y_pred, probabilities):
 # =========================
 # Data Loading
 # =========================
+#CSV header columns for the mushroom dataset 
+COLUMNS = [
+    "class", "cap-shape", "cap-surface", "cap-color", "bruises", "odor",
+    "gill-attachment", "gill-spacing", "gill-size", "gill-color",
+    "stalk-shape", "stalk-root", "stalk-surface-above-ring",
+    "stalk-surface-below-ring", "stalk-color-above-ring",
+    "stalk-color-below-ring", "veil-type", "veil-color", "ring-number",
+    "ring-type", "spore-print-color", "population", "habitat",
+]
+
+def load_data(filename="ORIGINALagaricus-lepiota.data"):
     # Path relative to NBC.py
-
+    # constructs path to dataset
+    path = Path(__file__).resolve().parent / "mushroom" / filename
     # Read all columns as strings (Categorical data)
+    df = pd.read_csv(path, header=None, dtype=str, keep_default_na=False)
 
-    # Detect whether the edited file includes a header
 
-    # Remove extra white space
+    # assign columns to dataframe
+    # USE ORIGINAL or else it may misinterpret the first row as header
+    df.columns = COLUMNS
 
+    # no white space removal is performed/needed for OG dataset
     # Target is 'class' if named, otherwise first column
+    target = "class" if "class" in df.columns else df.columns[0]
 
     # Map edible = 0, poisonous = 1
+    y = df[target].map({"e": 0, "p": 1})
+    if y.isna().any():
+        raise ValueError(f"Unexpected class labels: {set(df[target][y.isna()])}")
+    y = y.astype(int)
 
     # All input features must be categorical
+    X = df.drop(columns=target)
+    #we will treat ? the missing category as its own category.
 
-    # Treat '?' and empty values as missing categories
+    return X, y
 
 # =========================
 # Main Program
