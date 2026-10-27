@@ -1,29 +1,185 @@
 import numpy as np
 import pandas as pd
-import math as m
+from pathlib import Path
+from sklearn.model_selection import train_test_split
 
-with open('mushroom/Editedagaricus-lepiota.data') as file: #https://archive.ics.uci.edu/dataset/848/secondary+mushroom+dataset 
-    df = pd.read_csv(file)
-    print(df.head())
-    print(df.describe())
-    print(df.info())
-    print(df.columns)
-    print(df.shape)
+# =========================
+# Naive Bayes Classifier
+# =========================
 
 class NaiveBayesClassifier:
     def fit(self, X, y):
+        self.features = list(X.columns)
+        self.priors = {}
+        self.feature_probabilities = {}
 
+        # Calculate probabilities for each class
+        for c in (0, 1):
+            X_class = X.loc(y == c)
+            n_class = len(X_class)
+
+            if n_class == 0:
+                raise ValueError(f"No examples of class {c}")
+
+            # P(y = c)
+            self.priors[c] = n_class / len(y)
+
+            self.feature_probabilities[c] = {}
+            # Calculating P(feature = value | y = c)
+            for feature in self.features:
+                counts = X_class[feature].value_counts()
+
+                self.feature_probabilities[c][feature] = {
+                    value: count / n_class
+                    for value, count in counts.items()
+                }
+
+        return self
 
 
     def compute_likelihood(self, X):
-        likelihood = 1;
+        likelihoods = {}
 
-        return likelihood
+        for c in (0,1):
+            likelihood = 1.0
+
+            for feature in self.features:
+                value = X[feature]
+
+                # Unseen values have probability 0
+                probability = self.feature_probabilities[c][feature].get(
+                    value, 0.0
+                )
+
+                likelihood *= probability
+            likelihoods[c] = likelihood
+
+        return likelihoods
 
 
-    
-    def predict(self, X):
+    def predict_prob(self, X):
         predictions = []
+
+        for _, row in X.iterrows():
+            likelihoods = self.compute_likelihood(row)
+
+            # Prior times likelihood
+            score_0 = self.priors[0] * likelihoods[0]
+            score_1 = self.priors[1] * likelihoods[1]
+
+            denominator = score_0 + score_1
+
+            if denominator == 0:
+                # Both classes assigned zero likelihood.
+                # Use prior as a documented fallback.
+                p1 = self.priors[1]
+            else:
+                p1 = score_1 / denominator
+
+            predictions.append(p1)
+
+        return np.array(predictions)
         
 
+    def predict(self, X):
+        predictions = self.predict_prob(X)
+
+        # Class 1 when posterior probabilit >= 0.5
+        return (predictions >= 0.5).astype(int)
+
+
+# =========================
+# Evaluation Metrics
+# =========================
+
+def evaluate(y_true, y_pred, probabilities):
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+
+    # Confusion Matrix
+    TP = np.sum((y_true == 1) & (y_pred == 1))
+    TN = np.sum((y_true == 0) & (y_pred == 0))
+    FP = np.sum((y_true == 0) & (y_pred == 1))
+    FN = np.sum((y_true == 1) & (y_pred == 0))
+
+    def safe_divide(a, b):
+        return a/b if b != 0 else 0.0
+
+    # Accuracy
+    accuracy = (TP + TN) / len(y_true)
+
+    # Sensitivity (Recall) 
+    sensitivity = safe_divide(TP, TP + FN)
+
+    # Specificity
+    specificity = safe_divide(TN, TN + FP)
+
+    # Precision
+    precision = safe_divide(TP, TP + FP)
+
+    # F1 Score
+    f1 = safe_divide(
+        2 * precision * sensitivity,
+        precision + sensitivity
+    )
+
+    # Log loss: clip for numerical stability only
+    p = np.clip(probabilities, 1e-15, 1 - 1e-15)
+
+    log_loss = -np.mean(
+        y_true * np.log(p) + (1 - y_true) * np.log(1-p)
+    )
+
+    return {
+        "Accuracy": accuracy,
+        "Sensitivity": sensitivity,
+        "Specificity": specificity,
+        "F1 Score": f1,
+        "Log Loss": log_loss,
+        "TP": TP,
+        "TN": TN,
+        "FP": FP,
+        "FN": FN,
+    }
+
+
+# =========================
+# Data Loading
+# =========================
+    # Path relative to NBC.py
+
+    # Read all columns as strings (Categorical data)
+
+    # Detect whether the edited file includes a header
+
+    # Remove extra white space
+
+    # Target is 'class' if named, otherwise first column
+
+    # Map edible = 0, poisonous = 1
+
+    # All input features must be categorical
+
+    # Treat '?' and empty values as missing categories
+
+# =========================
+# Main Program
+# =========================
+    # Load dataset
+
+    # split 80% training / 20% testing
+
+    # Train model
+
+    # Training predictions
+
+    # Evaluate training performance
+
+    # Evaluate testing performance
+
+    # Display training results
+
+    # Display testing results
+
+    # Report undefined posterior cases
 
