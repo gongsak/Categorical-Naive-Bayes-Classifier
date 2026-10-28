@@ -59,7 +59,6 @@ class NaiveBayesClassifier:
 
     def predict_prob(self, X):
         predictions = []
-        self.n_undefined = 0
 
         for _, row in X.iterrows():
             likelihoods = self.compute_likelihood(row)
@@ -74,7 +73,6 @@ class NaiveBayesClassifier:
                 # Both classes assigned zero likelihood.
                 # Use prior as a documented fallback.
                 p1 = self.priors[1]
-                self.n_undefined += 1
             else:
                 p1 = score_1 / denominator
 
@@ -208,12 +206,10 @@ def main():
 
     # Training predictions
     train_prob = model.predict_prob(X_train)
-    train_undefined = model.n_undefined
     train_pred = model.predict(X_train)
 
     # Testing predictions
     test_prob = model.predict_prob(X_test)
-    test_undefined = model.n_undefined
     test_pred = model.predict(X_test)
 
     # Evaluate training performance
@@ -231,12 +227,6 @@ def main():
     for name in train_results:
         cell = "{:>12.4f}" if isinstance(train_results[name], float) else "{:>12}"
         print(f"{name:<12}" + cell.format(train_results[name]) + cell.format(test_results[name]))
-
-    # Report undefined posterior cases
-    print(
-        f"\nUndefined posteriors (both likelihoods 0, fell back to P(poisonous) = "
-        f"{model.priors[1]:.4f}): training {train_undefined}, testing {test_undefined}"
-    )
 
 
 if __name__ == "__main__":
