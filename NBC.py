@@ -15,7 +15,7 @@ class NaiveBayesClassifier:
 
         # Calculate probabilities for each class
         for c in (0, 1):
-            X_class = X.loc(y == c)
+            X_class = X.loc[y == c]
             n_class = len(X_class)
 
             if n_class == 0:
@@ -59,6 +59,7 @@ class NaiveBayesClassifier:
 
     def predict_prob(self, X):
         predictions = []
+        self.n_undefined = 0
 
         for _, row in X.iterrows():
             likelihoods = self.compute_likelihood(row)
@@ -73,6 +74,7 @@ class NaiveBayesClassifier:
                 # Both classes assigned zero likelihood.
                 # Use prior as a documented fallback.
                 p1 = self.priors[1]
+                self.n_undefined += 1
             else:
                 p1 = score_1 / denominator
 
@@ -187,21 +189,55 @@ def load_data(filename="ORIGINALagaricus-lepiota.data"):
 # =========================
 # Main Program
 # =========================
+def main():
     # Load dataset
+    # X 8124x22, contains all feature rows and columns
+        # each row is one mushroom instance, each col is one of the features
+    # y 1D, contains target class, 1 for poisonous, 0 for edible
+        # each index is corresponding to each row in X.
+    X, y = load_data()
+
 
     # split 80% training / 20% testing
+    X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y
+        )
 
     # Train model
+    model = NaiveBayesClassifier().fit(X_train, y_train)
 
     # Training predictions
+    train_prob = model.predict_prob(X_train)
+    train_undefined = model.n_undefined
+    train_pred = model.predict(X_train)
+
+    # Testing predictions
+    test_prob = model.predict_prob(X_test)
+    test_undefined = model.n_undefined
+    test_pred = model.predict(X_test)
 
     # Evaluate training performance
+    train_results = evaluate(y_train, train_pred, train_prob)
 
     # Evaluate testing performance
+    test_results = evaluate(y_test, test_pred, test_prob)
 
-    # Display training results
-
-    # Display testing results
+    print(f"Dataset: {len(X)} examples, {X.shape[1]} features")
+    print(f"Training: {len(X_train)} examples, Testing: {len(X_test)} examples")
+    print(f"Priors: P(edible) = {model.priors[0]:.4f}, P(poisonous) = {model.priors[1]:.4f}\n")
+    
+    # Display training and testing results
+    print(f"{'Metric':<12}{'Training':>12}{'Testing':>12}")
+    for name in train_results:
+        cell = "{:>12.4f}" if isinstance(train_results[name], float) else "{:>12}"
+        print(f"{name:<12}" + cell.format(train_results[name]) + cell.format(test_results[name]))
 
     # Report undefined posterior cases
+    print(
+        f"\nUndefined posteriors (both likelihoods 0, fell back to P(poisonous) = "
+        f"{model.priors[1]:.4f}): training {train_undefined}, testing {test_undefined}"
+    )
 
+
+if __name__ == "__main__":
+    main()
